@@ -152,7 +152,7 @@ Future backend scope:
 # Project Demo
 
 ## Video
-[Add your YouTube / Drive demo link here]
+[https://drive.google.com/file/d/1UWdEgmIdO90COszTieRU8G4DJbCmqnk_/view?usp=sharing]
 
 Demo video shows:
 - Event registration
