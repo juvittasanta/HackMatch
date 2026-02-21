@@ -1,6 +1,5 @@
-<p align="center">
-  <img src="./img.png" alt="HackMatch Banner" width="100%">
-</p>
+<img width="1280" height="640" alt="image" src="https://github.com/user-attachments/assets/c570fbae-d719-4c6b-9ead-723dfeb1f56f" />
+
 
 # HackMatch 🎯  
 Find your perfect fest. Match your passion. Build your future.
