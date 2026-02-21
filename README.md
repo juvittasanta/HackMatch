@@ -13,11 +13,11 @@ Find your perfect fest. Match your passion. Build your future.
 HackMatch Innovators
 
 ### Team Members
-- Member 1: [Your Name] - [Your College]
-- Member 2: [Teammate Name] - [College]
+- Member 1: Juvitta Santa Biju - Viswajyothi College of Engineering and Technology
+- Member 2: Mariya Tess Arun - Viswajyothi College of Engineering and Technology
 
 ### Hosted Project Link
-https://your-deployment-link.vercel.app
+[https://your-deployment-link.vercel.app](https://hack-match-wine.vercel.app/)
 
 ---
 
