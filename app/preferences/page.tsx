@@ -1,126 +1,177 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-type EventType = {
+interface EventType {
+  id: string;
   name: string;
-  level: string;
+  department: string;
+  skill: string;
   gender: string;
   domain: string;
-  department: string;
-};
+  date: string;
+  type: string;
+}
 
-export default function Preferences() {
+export default function PreferencesPage() {
+  const [events, setEvents] = useState<EventType[]>([]);
+  const [filtered, setFiltered] = useState<any[]>([]);
+
   const [preferences, setPreferences] = useState({
-    level: "",
+    skill: "",
     gender: "",
-    domain: "",
     department: "",
+    domain: "",
   });
 
-  const events: EventType[] = [
-    {
-      name: "HackMatch 2026",
-      level: "Beginner",
-      gender: "All",
-      domain: "Web",
-      department: "CSE",
-    },
-    {
-      name: "AI Fusion",
-      level: "Advanced",
-      gender: "All",
-      domain: "AI",
-      department: "CSE",
-    },
-    {
-      name: "Cyber Shield",
-      level: "Intermediate",
-      gender: "Male",
-      domain: "Cybersecurity",
-      department: "ECE",
-    },
-  ];
+  useEffect(() => {
+    const stored = localStorage.getItem("hackmatch_events");
+    if (stored) {
+      setEvents(JSON.parse(stored));
+    }
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPreferences({
-      ...preferences,
-      [e.target.name]: e.target.value,
-    });
-  };
+const calculateMatch = (event: EventType) => {
+  let score = 0;
+  let total = 5; // Now 5 factors
 
-  const calculateMatch = (event: EventType) => {
-    let score = 0;
-    let total = 4;
+  // Skill match
+  if (preferences.skill && preferences.skill === event.skill) {
+    score++;
+  }
 
-    if (preferences.level === event.level) score++;
-    if (preferences.gender === event.gender || event.gender === "All") score++;
-    if (preferences.domain === event.domain) score++;
-    if (preferences.department === event.department) score++;
+  // Gender logic
+  if (
+    preferences.gender &&
+    (event.gender === "Open to All" ||
+      preferences.gender === event.gender)
+  ) {
+    score++;
+  }
 
-    return Math.round((score / total) * 100);
+  // Department logic
+  if (
+    preferences.department &&
+    (event.department === "Open to All" ||
+      preferences.department.toLowerCase() ===
+        event.department.toLowerCase())
+  ) {
+    score++;
+  }
+
+  // Domain partial match (SMART MATCHING)
+  if (
+    preferences.domain &&
+    event.domain
+      .toLowerCase()
+      .includes(preferences.domain.toLowerCase())
+  ) {
+    score++;
+  }
+
+  // Time logic (basic match for now)
+  if (event.date) {
+    score++;
+  }
+
+  return Math.round((score / total) * 100);
+};
+
+  const handleMatch = () => {
+    const matched = events.map((event) => ({
+      ...event,
+      match: calculateMatch(event),
+    }));
+
+    matched.sort((a, b) => b.match - a.match);
+    setFiltered(matched);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 to-blue-100 p-8">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        Find Your Perfect Hackathon 🔥
+    <div>
+      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-pink-500 to-blue-500 bg-clip-text text-transparent">
+        Student Preferences 🎯
       </h1>
 
-      <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg space-y-4">
-        <select name="level" onChange={handleChange} className="w-full p-2 border rounded">
-          <option value="">Select Level</option>
-          <option value="Beginner">Beginner</option>
-          <option value="Intermediate">Intermediate</option>
-          <option value="Advanced">Advanced</option>
+      {/* Preference Form */}
+      <div className="bg-white/70 backdrop-blur-md p-6 rounded-3xl shadow-xl space-y-4 mb-10">
+        <select
+          onChange={(e) =>
+            setPreferences({ ...preferences, skill: e.target.value })
+          }
+          className="w-full p-3 rounded-xl border"
+        >
+          <option value="">Select Skill Level</option>
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Pro</option>
         </select>
 
-        <select name="gender" onChange={handleChange} className="w-full p-2 border rounded">
-          <option value="">Select Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="All">All</option>
+        <select
+          onChange={(e) =>
+            setPreferences({ ...preferences, gender: e.target.value })
+          }
+          className="w-full p-3 rounded-xl border"
+        >
+          <option value="">Select Gender Preference</option>
+          <option>Open to All</option>
+          <option>Women Only</option>
+          <option>Men Only</option>
         </select>
 
-        <select name="domain" onChange={handleChange} className="w-full p-2 border rounded">
-          <option value="">Select Domain</option>
-          <option value="Web">Web</option>
-          <option value="AI">AI</option>
-          <option value="Cybersecurity">Cybersecurity</option>
-        </select>
+        <input
+          placeholder="Preferred Department"
+          onChange={(e) =>
+            setPreferences({ ...preferences, department: e.target.value })
+          }
+          className="w-full p-3 rounded-xl border"
+        />
 
-        <select name="department" onChange={handleChange} className="w-full p-2 border rounded">
-          <option value="">Select Department</option>
-          <option value="CSE">CSE</option>
-          <option value="ECE">ECE</option>
-          <option value="ME">ME</option>
-        </select>
+        <input
+          placeholder="Preferred Domain (AI/ML, Coding...)"
+          onChange={(e) =>
+            setPreferences({ ...preferences, domain: e.target.value })
+          }
+          className="w-full p-3 rounded-xl border"
+        />
+
+        <button
+          onClick={handleMatch}
+          className="w-full py-3 bg-gradient-to-r from-pink-400 to-blue-400 text-white rounded-full font-semibold hover:scale-105 transition"
+        >
+          Find My Match
+        </button>
       </div>
 
-      {/* EVENTS DISPLAY */}
-      <div className="mt-10 grid md:grid-cols-3 gap-6">
-        {events.map((event, index) => {
-          const match = calculateMatch(event);
+      {/* Results */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filtered.map((event) => (
+          <div
+            key={event.id}
+            className="bg-white/70 backdrop-blur-md p-6 rounded-3xl shadow-lg"
+          >
+            <h2 className="text-xl font-semibold mb-2">
+              {event.name}
+            </h2>
 
-          return (
-            <div key={index} className="bg-white p-6 rounded-xl shadow-lg">
-              <h2 className="text-xl font-bold mb-2">{event.name}</h2>
-              <p>Level: {event.level}</p>
-              <p>Domain: {event.domain}</p>
-              <p>Department: {event.department}</p>
+            <p className="text-sm text-gray-600 mb-3">
+              {event.department} • {event.domain}
+            </p>
 
-              <div className="mt-4">
-                <p className="font-semibold">Match: {match}%</p>
-                <div className="w-full bg-gray-200 rounded-full h-3 mt-1">
-                  <div
-                    className="bg-gradient-to-r from-pink-400 to-blue-400 h-3 rounded-full"
-                    style={{ width: `${match}%` }}
-                  ></div>
-                </div>
+            <div className="mb-2">
+              <div className="h-3 bg-gray-200 rounded-full">
+                <div
+                  className="h-3 bg-gradient-to-r from-pink-400 to-blue-400 rounded-full"
+                  style={{ width: `${event.match}%` }}
+                ></div>
               </div>
             </div>
-          );
-        })}
+
+            <p className="text-sm font-medium text-gray-700">
+              {event.match}% Match
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );

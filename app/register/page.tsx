@@ -2,122 +2,200 @@
 
 import { useState } from "react";
 
-export default function Register() {
+export default function RegisterPage() {
   const [formData, setFormData] = useState({
     title: "",
     department: "",
-    level: "",
+    skill: "",
     gender: "",
     domain: "",
+    type: "",
     date: "",
+    description: "",
+    poster: "",
   });
 
-  const handleChange = (e: any) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: any) => {
-  e.preventDefault();
+  const handlePosterUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const existingEvents = JSON.parse(
-    localStorage.getItem("events") || "[]"
-  );
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData({ ...formData, poster: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
 
-  const updatedEvents = [...existingEvents, formData];
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-  localStorage.setItem("events", JSON.stringify(updatedEvents));
+    const existingEvents =
+      JSON.parse(localStorage.getItem("hackmatch_events") || "[]");
 
-  alert("Event Registered Successfully 🚀");
+    const newEvent = {
+      id: Date.now().toString(),
+      ...formData,
+    };
 
-  setFormData({
-    title: "",
-    department: "",
-    level: "",
-    gender: "",
-    domain: "",
-    date: "",
-  });
-};
+    const updatedEvents = [...existingEvents, newEvent];
+
+    localStorage.setItem(
+      "hackmatch_events",
+      JSON.stringify(updatedEvents)
+    );
+
+    alert("Event Registered Successfully 🎉");
+
+    setFormData({
+      title: "",
+      department: "",
+      skill: "",
+      gender: "",
+      domain: "",
+      type: "",
+      date: "",
+      description: "",
+      poster: "",
+    });
+  };
+
   return (
-    <main className="min-h-screen bg-gradient-to-r from-pink-100 to-blue-100 p-10">
-      <h1 className="text-4xl font-bold text-center mb-8">
-        Register Hackathon / Event
+    <div className="min-h-screen">
+      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-pink-500 to-blue-500 bg-clip-text text-transparent">
+        Register Event 🚀
       </h1>
 
       <form
         onSubmit={handleSubmit}
-        className="max-w-xl mx-auto bg-white p-8 rounded-xl shadow space-y-4"
+        className="bg-white/70 backdrop-blur-md p-8 rounded-3xl shadow-xl space-y-6"
       >
+        {/* Event Title */}
         <input
           type="text"
           name="title"
           placeholder="Event Name"
+          value={formData.title}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
           required
+          className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-pink-300"
         />
 
+        {/* Department */}
         <input
           type="text"
           name="department"
           placeholder="Conducted By (Department)"
+          value={formData.department}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
           required
+          className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-blue-300"
         />
 
+        {/* Event Type */}
         <select
-          name="level"
+          name="type"
+          value={formData.type}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
           required
+          className="w-full p-3 rounded-xl border"
+        >
+          <option value="">Select Event Type</option>
+          <option>Hackathon</option>
+          <option>Art Fest</option>
+          <option>Tech Fest</option>
+        </select>
+
+        {/* Skill Level */}
+        <select
+          name="skill"
+          value={formData.skill}
+          onChange={handleChange}
+          required
+          className="w-full p-3 rounded-xl border"
         >
           <option value="">Select Skill Level</option>
-          <option value="Beginner">Beginner</option>
-          <option value="Intermediate">Intermediate</option>
-          <option value="Pro">Pro</option>
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Pro</option>
         </select>
 
+        {/* Gender Eligibility */}
         <select
           name="gender"
+          value={formData.gender}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
           required
+          className="w-full p-3 rounded-xl border"
         >
-          <option value="">Gender Eligibility</option>
-          <option value="All">Open to All</option>
-          <option value="Women">Women Only</option>
-          <option value="Men">Men Only</option>
+          <option value="">Select Gender Eligibility</option>
+          <option>Open to All</option>
+          <option>Women Only</option>
+          <option>Men Only</option>
         </select>
 
+        {/* Domain */}
         <select
           name="domain"
+          value={formData.domain}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
           required
+          className="w-full p-3 rounded-xl border"
         >
-          <option value="">Domain</option>
-          <option value="Coding">Coding</option>
-          <option value="Hardware">Hardware</option>
-          <option value="AI/ML">AI/ML</option>
-          <option value="Design">Design</option>
+          <option value="">Select Domain</option>
+          <option>Coding</option>
+          <option>AI/ML</option>
+          <option>Design</option>
+          <option>Hardware</option>
+          <option>Robotics</option>
+          <option>Other</option>
         </select>
 
+        {/* Date */}
         <input
-          type="date"
+          type="datetime-local"
           name="date"
+          value={formData.date}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
           required
+          className="w-full p-3 rounded-xl border"
         />
 
+        {/* Poster Upload */}
+        <div>
+          <label className="block mb-2 font-medium">Upload Poster</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handlePosterUpload}
+            className="w-full"
+          />
+        </div>
+
+        {/* Description */}
+        <textarea
+          name="description"
+          placeholder="Short Description"
+          value={formData.description}
+          onChange={handleChange}
+          rows={4}
+          required
+          className="w-full p-3 rounded-xl border"
+        />
+
+        {/* Submit Button */}
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-pink-300 to-blue-300 py-3 rounded font-semibold hover:opacity-90"
+          className="w-full py-3 bg-gradient-to-r from-pink-400 to-blue-400 text-white rounded-full font-semibold hover:scale-105 transition duration-300"
         >
-          Submit Event
+          Register Event
         </button>
       </form>
-    </main>
+    </div>
   );
 }
